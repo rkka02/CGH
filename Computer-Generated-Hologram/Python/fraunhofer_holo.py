@@ -1,8 +1,8 @@
-import numpy as np
 from PIL import Image
+import numpy as np
 import matplotlib.pyplot as plt
 
-class Fresnel:
+class Fraunhofer:
 
     def __init__(self):
         pass
@@ -10,14 +10,14 @@ class Fresnel:
     def padding(self, g):
         M, N = g.shape
         m = max(M,N)
-        a = int(np.log2(m)+2)
+        a = int(np.log2(m)+3)
         A = 2**a
         t = np.zeros((A,A))
         t[int(A/2-M/2) : int(A/2+M/2), int(A/2-N/2) : int(A/2+N/2)] = g[:,:]
         t = t/np.max(t)
         return t
 
-    def fresnel(self, g, lambda_=1e-9, d=1):
+    def fraunhofer(self, g, lambda_=1e-9, d=1):
         M, N = g.shape
         dxs = np.sqrt(lambda_ * d / M)
         dys = np.sqrt(lambda_ * d / N)
@@ -31,8 +31,6 @@ class Fresnel:
 
         # random noise
         g = g * 2 * np.pi * np.random.rand(M, N)
-        
-        g = g * np.exp(1j * np.pi / lambda_ / d * (Xs**2 + Ys**2))
 
         g = np.fft.fftshift(g)
         g = np.fft.fft2(g)
@@ -61,9 +59,9 @@ class Fresnel:
 
     def reconstruct(self, holo, p):
         holo = holo - np.mean(holo)
-        rec = self.fresnel(holo * p)
+        rec = self.fraunhofer(holo * p)
         return rec
-
+    
 if __name__ == '__main__':
     img_path = "/Users/makisbea/Labs/Computer-Generated-Hologram/Images/rikka.png"
 
@@ -71,17 +69,18 @@ if __name__ == '__main__':
     img = img.convert('L')
     g = np.array(img)
 
-    f = Fresnel()
+    f = Fraunhofer()
     g = f.padding(g)
-    g = f.fresnel(g)
+    g = f.fraunhofer(g)
 
     # record
-    r = f.plane_wave(g, theta=np.pi/10)
+    r = f.plane_wave(g, theta=np.pi/5)
     holo = f.record(g, r)
     # reconstruct
-    p = f.plane_wave(g, theta=-np.pi/10)
+    p = f.plane_wave(g, theta=-np.pi/5)
     recon = f.reconstruct(holo, p)
 
+    M, N = recon.shape
     plt.figure(1)
     plt.imshow(np.abs(recon), 'gray')
     plt.show()
