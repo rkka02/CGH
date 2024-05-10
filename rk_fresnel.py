@@ -4,8 +4,9 @@ import matplotlib.pyplot as plt
 
 class Fresnel:
 
-    def __init__(self):
+    def __init__(self, lambda_=633e-9, pix=3.45e-6, d=1):
         pass
+
 
     def padding(self, g):
         H, W = g.shape
@@ -76,7 +77,7 @@ class Fresnel:
         return rec
 
 if __name__ == '__main__':
-    img_path = "C:\Lab\CGH\Computer-Generated-Hologram\Images\goose.jpg"
+    img_path = "C:\Lab\CGH\Images\goose.jpg"
 
     img = Image.open(img_path)
     img = img.convert('L')
