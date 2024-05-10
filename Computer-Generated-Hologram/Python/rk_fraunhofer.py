@@ -17,7 +17,7 @@ class Fraunhofer:
         t = t/np.max(t)
         return t
 
-    def fraunhofer(self, g, lambda_=1e-9, d=1):
+    def fraunhofer(self, g, lambda_=633e-9, d=1):
         M, N = g.shape
         dxs = np.sqrt(lambda_ * d / M)
         dys = np.sqrt(lambda_ * d / N)
@@ -30,7 +30,7 @@ class Fraunhofer:
         Y, X = np.meshgrid(y, x)
 
         # random noise
-        g = g * 2 * np.pi * np.random.rand(M, N)
+        # g = g * 2 * np.pi * np.random.rand(M, N)
 
         g = np.fft.fftshift(g)
         g = np.fft.fft2(g)
@@ -43,7 +43,7 @@ class Fraunhofer:
         g = g / np.max(np.abs(g))
         return g
         
-    def plane_wave(self, g, theta=np.pi/18, lambda_=1e-9, d=1):
+    def plane_wave(self, g, theta=0, lambda_=633e-9, d=1):
         M, N = g.shape
         dx = np.sqrt(lambda_ * d / M)
         dy = np.sqrt(lambda_ * d / N)
@@ -52,6 +52,18 @@ class Fraunhofer:
         Y, X = np.meshgrid(y, x)
         
         return np.exp(1j * 2 * np.pi / lambda_ * X * np.sin(theta))
+    
+    def spherical_wave(self, g, x_shift=0, y_shift=0, lambda_=633e-9, d=1):
+        M, N = g.shape
+        dx = np.sqrt(lambda_ * d / M)
+        dy = np.sqrt(lambda_ * d / N)
+        x = dx * np.array(range(-int(M/2),+int(M/2)))
+        y = dy * np.array(range(-int(N/2),+int(N/2)))
+        Y, X = np.meshgrid(y, x)
+
+        return (1 / 1j / lambda_ / d) * np.exp(1j * np.pi / lambda_ / d * ((X-dx*x_shift)**2+(Y-dy*y_shift)**2))
+        # return np.exp(1j * np.pi / lambda_ / d * ((X-dx*M*x_shift)**2+(Y-dy*M*y_shift)**2))
+    
 
     def record(self, g, r):
         holo = np.square(np.abs(g + r))
@@ -63,8 +75,7 @@ class Fraunhofer:
         return rec
     
 if __name__ == '__main__':
-    img_path = "/Users/makisbea/Labs/Computer-Generated-Hologram/Images/rikka.png"
-
+    img_path = "C:\Lab\CGH\Computer-Generated-Hologram\Images\goose.jpg"
     img = Image.open(img_path)
     img = img.convert('L')
     g = np.array(img)
@@ -74,10 +85,10 @@ if __name__ == '__main__':
     g = f.fraunhofer(g)
 
     # record
-    r = f.plane_wave(g, theta=np.pi/5)
+    r = f.plane_wave(g, theta=np.pi/3)
     holo = f.record(g, r)
     # reconstruct
-    p = f.plane_wave(g, theta=-np.pi/5)
+    p = f.plane_wave(g, theta=-np.pi/3)
     recon = f.reconstruct(holo, p)
 
     M, N = recon.shape

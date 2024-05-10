@@ -10,14 +10,14 @@ class Fresnel:
     def padding(self, g):
         M, N = g.shape
         m = max(M,N)
-        a = int(np.log2(m)+2)
+        a = int(np.log2(m)+3)
         A = 2**a
         t = np.zeros((A,A))
         t[int(A/2-M/2) : int(A/2+M/2), int(A/2-N/2) : int(A/2+N/2)] = g[:,:]
         t = t/np.max(t)
         return t
 
-    def fresnel(self, g, lambda_=1e-9, d=1):
+    def fresnel(self, g, lambda_=633e-9, d=1):
         M, N = g.shape
         dxs = np.sqrt(lambda_ * d / M)
         dys = np.sqrt(lambda_ * d / N)
@@ -45,7 +45,7 @@ class Fresnel:
         g = g / np.max(np.abs(g))
         return g
         
-    def plane_wave(self, g, theta=np.pi/18, lambda_=1e-9, d=1):
+    def plane_wave(self, g, theta=0, lambda_=633e-9, d=1):
         M, N = g.shape
         dx = np.sqrt(lambda_ * d / M)
         dy = np.sqrt(lambda_ * d / N)
@@ -54,7 +54,18 @@ class Fresnel:
         Y, X = np.meshgrid(y, x)
         
         return np.exp(1j * 2 * np.pi / lambda_ * X * np.sin(theta))
+    
+    def spherical_wave(self, g, x_shift=0, y_shift=0, lambda_=633e-9, d=1):
+        M, N = g.shape
+        dx = np.sqrt(lambda_ * d / M)
+        dy = np.sqrt(lambda_ * d / N)
+        x = dx * np.array(range(-int(M/2),+int(M/2)))
+        y = dy * np.array(range(-int(N/2),+int(N/2)))
+        Y, X = np.meshgrid(y, x)
 
+        return (1 / 1j / lambda_ / d) * np.exp(1j * np.pi / lambda_ / d * ((X-dx*x_shift)**2+(Y-dy*y_shift)**2))
+        # return np.exp(1j * np.pi / lambda_ / d * ((X-dx*M*x_shift)**2+(Y-dy*M*y_shift)**2))
+    
     def record(self, g, r):
         holo = np.square(np.abs(g + r))
         return holo
@@ -65,7 +76,7 @@ class Fresnel:
         return rec
 
 if __name__ == '__main__':
-    img_path = "/Users/makisbea/Labs/Computer-Generated-Hologram/Images/rikka.png"
+    img_path = "C:\Lab\CGH\Computer-Generated-Hologram\Images\goose.jpg"
 
     img = Image.open(img_path)
     img = img.convert('L')
@@ -76,12 +87,24 @@ if __name__ == '__main__':
     g = f.fresnel(g)
 
     # record
-    r = f.plane_wave(g, theta=np.pi/10)
+    r = f.plane_wave(g, theta=np.pi/5)
     holo = f.record(g, r)
     # reconstruct
-    p = f.plane_wave(g, theta=-np.pi/10)
+    p = f.plane_wave(g, theta=np.pi/5)
     recon = f.reconstruct(holo, p)
 
     plt.figure(1)
+    plt.imshow(holo, 'gray')
+    plt.title('hologram')
+
+    plt.figure(2)
+    plt.imshow(np.log(1+np.abs(np.fft.fftshift(np.fft.fft2(holo)))))
+    plt.title("Fourier transform of the hologram")
+
+    plt.figure(3)
     plt.imshow(np.abs(recon), 'gray')
+    plt.title('reconstructed image')
+
+
+
     plt.show()

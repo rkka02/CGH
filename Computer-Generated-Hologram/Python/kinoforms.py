@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 
 # input the image path
 # image_path = "../Res/image256/lena.png"
-image_path = "../Res/imageO/pku.jpg"
+image_path = "C:\Lab\CGH\Computer-Generated-Hologram\Images\goose.jpg"
 img = cv2.imread(image_path)
 print(img.shape)
 img_gray = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
@@ -87,7 +87,7 @@ print(ki.shape)
 plt.figure(3)
 plt.imshow(Phase, cmap="gray")
 plt.title("Kinoforms")
-cv2.imwrite("./result/ki_pku_CGH.bmp", ki)
+# cv2.imwrite("./result/ki_pku_CGH.bmp", ki)
 
 '''
     Recon:再现
@@ -113,6 +113,6 @@ Uf = Uf * 255 / np.max(Uf)
 plt.figure(4)
 plt.imshow(Uf, cmap="gray")
 plt.title("Amplitude distribution of object plane reconstructed by inverse operation")
-cv2.imwrite("./result/ki_pku_recover.bmp", Uf)
+# cv2.imwrite("./result/ki_pku_recover.bmp", Uf)
 
 plt.show()
