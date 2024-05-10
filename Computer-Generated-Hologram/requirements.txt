@@ -1,6 +1,0 @@
-numpy
-pillow
-matplotlib
-scipy
-opencv-python
-tqdm
