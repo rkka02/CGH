@@ -4,7 +4,7 @@ from scipy.fftpack import fft2, ifft2, fftshift
 import matplotlib.pyplot as plt
 
 # input the image path
-image_path = "../Res/imageO/pku.jpg"
+image_path = "C:\Lab\CGH\Images\goose.jpg"
 img = cv2.imread(image_path)
 img_gray = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
 print(img_gray.shape)

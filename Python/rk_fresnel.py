@@ -8,21 +8,21 @@ class Fresnel:
         pass
 
     def padding(self, g):
-        M, N = g.shape
-        m = max(M,N)
+        H, W = g.shape
+        m = max(H,W)
         a = int(np.log2(m)+3)
         A = 2**a
         t = np.zeros((A,A))
-        t[int(A/2-M/2) : int(A/2+M/2), int(A/2-N/2) : int(A/2+N/2)] = g[:,:]
+        t[int(A/2-H/2) : int(A/2+H/2), int(A/2-W/2) : int(A/2+W/2)] = g[:,:]
         t = t/np.max(t)
         return t
 
     def fresnel(self, g, lambda_=633e-9, d=1):
-        M, N = g.shape
-        dxs = np.sqrt(lambda_ * d / M)
-        dys = np.sqrt(lambda_ * d / N)
-        xs = dxs * np.array(range(-int(M/2),+int(M/2)))
-        ys = dys * np.array(range(-int(N/2),+int(N/2)))
+        H, W = g.shape
+        dxs = np.sqrt(lambda_ * d / H)
+        dys = np.sqrt(lambda_ * d / W)
+        xs = dxs * np.array(range(-int(H/2),+int(H/2)))
+        ys = dys * np.array(range(-int(W/2),+int(W/2)))
         Ys, Xs = np.meshgrid(ys, xs)
         
         dx, dy = dxs, dys
@@ -30,7 +30,7 @@ class Fresnel:
         Y, X = np.meshgrid(y, x)
 
         # random noise
-        g = g * 2 * np.pi * np.random.rand(M, N)
+        g = g * 2 * np.pi * np.random.rand(H, W)
         
         g = g * np.exp(1j * np.pi / lambda_ / d * (Xs**2 + Ys**2))
 
@@ -46,25 +46,25 @@ class Fresnel:
         return g
         
     def plane_wave(self, g, theta=0, lambda_=633e-9, d=1):
-        M, N = g.shape
-        dx = np.sqrt(lambda_ * d / M)
-        dy = np.sqrt(lambda_ * d / N)
-        x = dx * np.array(range(-int(M/2),+int(M/2)))
-        y = dy * np.array(range(-int(N/2),+int(N/2)))
+        H, W = g.shape
+        dx = np.sqrt(lambda_ * d / H)
+        dy = np.sqrt(lambda_ * d / W)
+        x = dx * np.array(range(-int(H/2),+int(H/2)))
+        y = dy * np.array(range(-int(W/2),+int(W/2)))
         Y, X = np.meshgrid(y, x)
         
         return np.exp(1j * 2 * np.pi / lambda_ * X * np.sin(theta))
     
     def spherical_wave(self, g, x_shift=0, y_shift=0, lambda_=633e-9, d=1):
-        M, N = g.shape
-        dx = np.sqrt(lambda_ * d / M)
-        dy = np.sqrt(lambda_ * d / N)
-        x = dx * np.array(range(-int(M/2),+int(M/2)))
-        y = dy * np.array(range(-int(N/2),+int(N/2)))
+        H, W = g.shape
+        dx = np.sqrt(lambda_ * d / H)
+        dy = np.sqrt(lambda_ * d / W)
+        x = dx * np.array(range(-int(H/2),+int(H/2)))
+        y = dy * np.array(range(-int(W/2),+int(W/2)))
         Y, X = np.meshgrid(y, x)
 
         return (1 / 1j / lambda_ / d) * np.exp(1j * np.pi / lambda_ / d * ((X-dx*x_shift)**2+(Y-dy*y_shift)**2))
-        # return np.exp(1j * np.pi / lambda_ / d * ((X-dx*M*x_shift)**2+(Y-dy*M*y_shift)**2))
+        # return np.exp(1j * np.pi / lambda_ / d * ((X-dx*H*x_shift)**2+(Y-dy*H*y_shift)**2))
     
     def record(self, g, r):
         holo = np.square(np.abs(g + r))

@@ -10,37 +10,37 @@ class Kinoform:
         self.d = 1200
 
     def padding(self, g):
-        M, N = g.shape
-        m = max(M,N)
+        H, W = g.shape
+        m = max(H,W)
         a = int(np.log2(m)+2)
         A = 2**a
         t = np.zeros((A,A))
-        t[int(A/2-M/2) : int(A/2+M/2), int(A/2-N/2) : int(A/2+N/2)] = g[:,:]
+        t[int(A/2-H/2) : int(A/2+H/2), int(A/2-W/2) : int(A/2+W/2)] = g[:,:]
         t = t/np.max(t)
         return t
     
     def fresnel_object_to_slm(self, g):
-        M, N = g.shape
+        H, W = g.shape
 
-        # kinoform : SLM으로 위상 변화시키는거라 픽셀크기 픽스시켜주는거
-        Lx = M * self.pix
-        Ly = N * self.pix
+        # kinoform : SLH으로 위상 변화시키는거라 픽셀크기 픽스시켜주는거
+        Lx = H * self.pix
+        Ly = W * self.pix
         dx = self.pix
         dy = self.pix
-        x = dx * np.array(range(-int(M/2), +int(M/2)))
-        y = dy * np.array(range(-int(N/2), +int(N/2)))
+        x = dx * np.array(range(-int(H/2), +int(H/2)))
+        y = dy * np.array(range(-int(W/2), +int(W/2)))
         Y, X = np.meshgrid(y, x)
 
         Lx0 = self.lambda_ * self.d / dx
         Ly0 = self.lambda_ * self.d / dy
-        dxs = Lx0 / M
-        dys = Ly0 / N
-        xs = dxs * np.array(range(-int(M/2),+int(M/2)))
-        ys = dys * np.array(range(-int(N/2),+int(N/2)))
+        dxs = Lx0 / H
+        dys = Ly0 / W
+        xs = dxs * np.array(range(-int(H/2),+int(H/2)))
+        ys = dys * np.array(range(-int(W/2),+int(W/2)))
         Ys, Xs = np.meshgrid(ys, xs)
 
         # random noise
-        g = g * 2 * np.pi * np.random.rand(M, N)
+        g = g * 2 * np.pi * np.random.rand(H, W)
         
         g = g * np.exp(1j * np.pi / self.lambda_ / self.d * (Xs**2 + Ys**2))
 
@@ -61,22 +61,22 @@ class Kinoform:
     def reconstruct(self, kino):
         U0 = np.cos(kino - np.pi) + 1j * np.sin(kino - np.pi)
 
-        M, N = kino.shape
-        # kinoform : SLM으로 위상 변화시키는거라 픽셀크기 픽스시켜주는거
-        Lx = M * self.pix
-        Ly = N * self.pix
+        H, W = kino.shape
+        # kinoform : SLH으로 위상 변화시키는거라 픽셀크기 픽스시켜주는거
+        Lx = H * self.pix
+        Ly = W * self.pix
         dx = self.pix
         dy = self.pix
-        x = dx * np.array(range(-int(M/2), +int(M/2)))
-        y = dy * np.array(range(-int(N/2), +int(N/2)))
+        x = dx * np.array(range(-int(H/2), +int(H/2)))
+        y = dy * np.array(range(-int(W/2), +int(W/2)))
         Y, X = np.meshgrid(y, x)
 
         Lx0 = self.lambda_ * self.d / dx
         Ly0 = self.lambda_ * self.d / dy
-        dxs = Lx0 / M
-        dys = Ly0 / N
-        xs = dxs * np.array(range(-int(M/2),+int(M/2)))
-        ys = dys * np.array(range(-int(N/2),+int(N/2)))
+        dxs = Lx0 / H
+        dys = Ly0 / W
+        xs = dxs * np.array(range(-int(H/2),+int(H/2)))
+        ys = dys * np.array(range(-int(W/2),+int(W/2)))
         Ys, Xs = np.meshgrid(ys, xs)
 
         U0 = U0 * np.exp(-1j * np.pi / self.lambda_ / self.d * (X**2 + Y**2))
