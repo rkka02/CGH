@@ -2,17 +2,10 @@ import numpy as np
 from utils.Grid_generator import Grid_generator
 
 class Fresnel_propagator:
-    def propagate(image, lambda_=633e-9, d=1, pix=3.45e-6, step='record', random_noise=False, regularization=True):
+    def propagate(image, from_sampling_interval, lambda_=633e-9, d=1, random_noise=False, regularization=True):
         H, W = image.shape
 
-        if step == 'record':
-            dx_from = np.sqrt(lambda_ * d / W)
-            dy_from = np.sqrt(lambda_ * d / H)
-        elif step == 'recon':
-            dx_from = pix
-            dy_from = pix
-        else:
-            raise KeyError("Only 'record', 'recon' and 'custom' are allowed")
+        dy_from, dx_from = from_sampling_interval
 
         dx_to = lambda_ * d / W / dx_from
         dy_to = lambda_ * d / H / dy_from
